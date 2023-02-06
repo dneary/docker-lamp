@@ -4,25 +4,39 @@ services:
   proxy:
     restart: always
     image: nginx:latest
-#   shm-size: 256mb
     networks: 
-      - internal_network
       - external_network
     # Mapping host ports 80 and 443 into the Nginx service directly
     ports:
-      - 8080:80
-      - 8443:443
+      - 80:80
     volumes:
-      - ./nginx/tmp:/var/run/nginx
+#     - ./nginx/tmp:/var/run/nginx
       - ./nginx/conf.d:/etc/nginx/conf.d
 #     - /etc/letsencrypt:/etc/letsencrypt
-      - ./nginx/rootdir:/rootdir
+      - ./nginx/rootdir:/usr/share/nginx/html
+    command: [ nginx-debug, '-g', 'daemon off;' ]
+
+  wordpress:
+    restart: always
+    image: wordpress:6.1-apache
+    environment:
+      WORDPRESS_DB_HOST: 'db'
+      WORDPRESS_DB_USER: 'wordpress'
+      WORDPRESS_DB_PASSWORD: 'password1234'
+      WORDPRESS_DB_NAME: 'wordpress'
+    ports:
+      - 8080:80
+    networks:
+      - external_network
+    volumes:
+      - ./wordpress:/var/www/html
+
   db:
-    image: mysql:5.7
+    image: mysql/mysql-server:8.0
     restart: always
     environment:
-      MYSQL_DATABASE: 'test_db'
-      MYSQL_USER: 'test_user'
+      MYSQL_DATABASE: 'wordpress'
+      MYSQL_USER: 'wordpress'
       MYSQL_PASSWORD: 'password1234'
       MYSQL_ROOT_PASSWORD: 'password'
     healthcheck:
@@ -31,9 +45,7 @@ services:
       timeout: 10s
       retries: 5
     networks:
-      - internal_network
-    ports:
-      - 3306:3306
+      - external_network
     volumes:
       - ./mysql/wordpress:/var/lib/mysql
       - ./mysql/logs:/var/log/mysql

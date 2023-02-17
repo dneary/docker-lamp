@@ -17,7 +17,7 @@ services:
       - ./nginx/rootdir:/usr/share/nginx/html
     command: [ nginx-debug, '-g', 'daemon off;' ]
 
-  wordpress:
+  wordpress1:
     restart: always
     image: wordpress:6.1-apache
     environment:

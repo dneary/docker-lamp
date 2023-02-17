@@ -10,7 +10,7 @@ containers. We will start 3 containers, each with a specific role:
     for static resources.
 2.  `wordpress`: This is a basic Apache2/PHP container with the latest version of Wordpress pre-installed.
     We add configuration options for the Wordpress container for the database connection to a separate
-    database node. For test purposes, we map port 80 of the Wordpress container to port 8080 of the host.
+    database node. For etest purposes, we map port 80 of the Wordpress container to port 8080 of the host.
 3.  `mysql-server`: This container will serve as our database. The database will be initialized with an
     empty database and a pre-configured user through environment variables.
 

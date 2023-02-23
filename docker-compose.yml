@@ -10,12 +10,20 @@ services:
     # Mapping host ports 80 and 443 into the Nginx service directly
     ports:
       - 80:80
+      - 443:443
     volumes:
-#     - ./nginx/tmp:/var/run/nginx
+      - ./nginx/tmp:/var/run/nginx
       - ./nginx/conf.d:/etc/nginx/conf.d
-#     - /etc/letsencrypt:/etc/letsencrypt
       - ./nginx/rootdir:/usr/share/nginx/html
+      - ./certbot/www/:/var/www/certbot/
+      - ./certbot/conf/:/etc/nginx/ssl/
     command: [ nginx-debug, '-g', 'daemon off;' ]
+
+  certbot:
+    image: certbot/certbot:arm64v8-latest
+    volumes:
+      - ./certbot/www/:/var/www/certbot/
+      - ./certbot/conf/:/etc/letsencrypt/
 
   wordpress1:
     restart: always
@@ -63,15 +71,18 @@ services:
       - ./mysql/logs:/var/log/mysql
       - ./mysql/initdb:/docker-entrypoint-initdb.d
 
+  redis:
+    image: redis:alpine
+    #command:
+    #  - "--loglevel"
+    #  - "verbose"
+    restart: always
+    networks:
+      - external_network
+
+
 networks:
   external_network:
   internal_network:
     internal: true
-
-
-#redis:
-#   container_name: "${COMPOSE_PROJECT_NAME}-redis"
-#   image: redis:latest
-#   ports:
-#     - "127.0.0.1:${HOST_MACHINE_REDIS_PORT}:6379"
 
